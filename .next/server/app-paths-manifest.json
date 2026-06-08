@@ -1,6 +1,0 @@
-{
-  "/api/admin/upload/route": "app/api/admin/upload/route.js",
-  "/api/admin/properties/[id]/route": "app/api/admin/properties/[id]/route.js",
-  "/admin/page": "app/admin/page.js",
-  "/page": "app/page.js"
-}
