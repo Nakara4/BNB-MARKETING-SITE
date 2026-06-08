@@ -1,0 +1,136 @@
+import { ObjectId } from "mongodb";
+import { getDb } from "@/lib/mongodb";
+import type { Property, PropertyDocument, PropertyInput } from "@/lib/types";
+
+const COLLECTION = "properties";
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function toProperty(document: PropertyDocument): Property {
+  return {
+    id: document._id?.toString() ?? "",
+    title: document.title,
+    slug: document.slug,
+    price: document.price,
+    location: document.location,
+    description: document.description,
+    images: document.images ?? [],
+    createdAt: document.createdAt.toISOString(),
+    updatedAt: document.updatedAt.toISOString()
+  };
+}
+
+async function collection() {
+  const db = await getDb();
+  const properties = db.collection<PropertyDocument>(COLLECTION);
+  await properties.createIndex({ slug: 1 }, { unique: true });
+  await properties.createIndex({ location: "text", title: "text", description: "text" });
+  return properties;
+}
+
+export async function getProperties(location?: string) {
+  if (!process.env.MONGODB_URI) {
+    return [];
+  }
+
+  const properties = await collection();
+  const query = location
+    ? {
+        location: {
+          $regex: location,
+          $options: "i"
+        }
+      }
+    : {};
+
+  const documents = await properties.find(query).sort({ createdAt: -1 }).toArray();
+  return documents.map(toProperty);
+}
+
+export async function getPropertyBySlug(slug: string) {
+  if (!process.env.MONGODB_URI) {
+    return null;
+  }
+
+  const properties = await collection();
+  const document = await properties.findOne({ slug });
+  return document ? toProperty(document) : null;
+}
+
+export async function createProperty(input: PropertyInput) {
+  const properties = await collection();
+  const now = new Date();
+  const baseSlug = slugify(input.slug || input.title);
+  let slug = baseSlug;
+  let suffix = 2;
+
+  while (await properties.findOne({ slug })) {
+    slug = `${baseSlug}-${suffix}`;
+    suffix += 1;
+  }
+
+  const document: PropertyDocument = {
+    title: input.title,
+    slug,
+    price: Number(input.price),
+    location: input.location,
+    description: input.description,
+    images: input.images ?? [],
+    createdAt: now,
+    updatedAt: now
+  };
+
+  const result = await properties.insertOne(document);
+  return toProperty({ ...document, _id: result.insertedId });
+}
+
+export async function updateProperty(id: string, input: PropertyInput) {
+  const properties = await collection();
+  const now = new Date();
+  const existing = await properties.findOne({ _id: new ObjectId(id) });
+
+  if (!existing) {
+    return null;
+  }
+
+  let slug = existing.slug;
+  const requestedSlug = slugify(input.slug || input.title);
+
+  if (requestedSlug && requestedSlug !== existing.slug) {
+    slug = requestedSlug;
+    let suffix = 2;
+    while (await properties.findOne({ slug, _id: { $ne: existing._id } })) {
+      slug = `${requestedSlug}-${suffix}`;
+      suffix += 1;
+    }
+  }
+
+  await properties.updateOne(
+    { _id: existing._id },
+    {
+      $set: {
+        title: input.title,
+        slug,
+        price: Number(input.price),
+        location: input.location,
+        description: input.description,
+        images: input.images ?? [],
+        updatedAt: now
+      }
+    }
+  );
+
+  const updated = await properties.findOne({ _id: existing._id });
+  return updated ? toProperty(updated) : null;
+}
+
+export async function deleteProperty(id: string) {
+  const properties = await collection();
+  await properties.deleteOne({ _id: new ObjectId(id) });
+}
