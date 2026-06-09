@@ -12,6 +12,18 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "");
 }
 
+function normalizeSlug(value: string) {
+  try {
+    return slugify(decodeURIComponent((value || "").trim()));
+  } catch {
+    return slugify((value || "").trim());
+  }
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 function toProperty(document: PropertyDocument): Property {
   return {
     id: document._id?.toString() ?? "",
@@ -54,12 +66,22 @@ export async function getProperties(location?: string) {
 }
 
 export async function getPropertyBySlug(slug: string) {
-  if (!process.env.MONGODB_URI) {
+  const normalizedSlug = normalizeSlug(slug);
+
+  if (!process.env.MONGODB_URI || !normalizedSlug) {
     return null;
   }
 
   const properties = await collection();
-  const document = await properties.findOne({ slug });
+  const document = await properties.findOne({
+    $or: [
+      { slug },
+      { slug: normalizedSlug },
+      { slug: { $regex: `^${escapeRegExp(normalizedSlug)}$`, $options: "i" } },
+      { slug: { $regex: `^${escapeRegExp(slug)}$`, $options: "i" } }
+    ]
+  });
+
   return document ? toProperty(document) : null;
 }
 

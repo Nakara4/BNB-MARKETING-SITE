@@ -14,6 +14,24 @@ type PropertyPageProps = {
   }>;
 };
 
+function buildWhatsAppHref(baseUrl: string, message: string) {
+  const trimmedBaseUrl = baseUrl.trim();
+  const fallbackUrl = "https://wa.me/254700000000";
+  const normalizedBaseUrl =
+    trimmedBaseUrl && /^(https?:\/\/|whatsapp:\/\/)/i.test(trimmedBaseUrl)
+      ? trimmedBaseUrl
+      : `https://wa.me/${trimmedBaseUrl || "254700000000"}`;
+
+  try {
+    const url = new URL(normalizedBaseUrl);
+    url.searchParams.set("text", message);
+    return url.toString();
+  } catch {
+    const separator = normalizedBaseUrl.includes("?") ? "&" : "?";
+    return `${normalizedBaseUrl}${separator}text=${encodeURIComponent(message)}`;
+  }
+}
+
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
   const { slug } = await params;
   const property = await getPropertyBySlug(slug);
@@ -39,7 +57,11 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   const images = property.images.length
     ? property.images
     : ["https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=1400&auto=format&fit=crop"];
-  const whatsappHref = process.env.NEXT_PUBLIC_BOOKING_WHATSAPP || "https://wa.me/254700000000";
+  const bookingMessage = `Hello! I’m interested in ${property.title} in ${property.location}. Please help me with availability and booking details.`;
+  const whatsappHref = buildWhatsAppHref(
+    process.env.NEXT_PUBLIC_BOOKING_WHATSAPP || "https://wa.me/254700000000",
+    bookingMessage
+  );
   const emailHref = process.env.NEXT_PUBLIC_BOOKING_EMAIL || "mailto:hello@example.com";
 
   return (
@@ -83,7 +105,9 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
             </p>
             <div className="mt-6 grid gap-3">
               <a
-                href={`${whatsappHref}?text=${encodeURIComponent(`Hi, I would like to book ${property.title} in ${property.location}.`)}`}
+                href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-coral px-5 font-bold text-white transition hover:bg-[#cf4e43]"
               >
                 <MessageCircle className="h-5 w-5" aria-hidden="true" />
