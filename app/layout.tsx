@@ -4,6 +4,9 @@ import { siteName, siteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  other: {
+    "google-site-verification": "-Bekxg88Twwc3j0t1Og89nZ0NiiRKBRMfOByhubFNns"
+  },
   title: {
     default: `${siteName} | Curated Staycation Homes`,
     template: `%s | ${siteName}`
