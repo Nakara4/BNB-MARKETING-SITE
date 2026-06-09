@@ -14,22 +14,45 @@ type PropertyPageProps = {
   }>;
 };
 
-function buildWhatsAppHref(baseUrl: string, message: string) {
-  const trimmedBaseUrl = baseUrl.trim();
-  const fallbackUrl = "https://wa.me/254700000000";
-  const normalizedBaseUrl =
-    trimmedBaseUrl && /^(https?:\/\/|whatsapp:\/\/)/i.test(trimmedBaseUrl)
-      ? trimmedBaseUrl
-      : `https://wa.me/${trimmedBaseUrl || "254700000000"}`;
-
-  try {
-    const url = new URL(normalizedBaseUrl);
-    url.searchParams.set("text", message);
-    return url.toString();
-  } catch {
-    const separator = normalizedBaseUrl.includes("?") ? "&" : "?";
-    return `${normalizedBaseUrl}${separator}text=${encodeURIComponent(message)}`;
+function normalizeWhatsAppPhone(value: string) {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) {
+    return "";
   }
+
+  const digitsOnly = trimmedValue.replace(/\D/g, "");
+  if (!digitsOnly) {
+    return "";
+  }
+
+  const hasPlusPrefix = trimmedValue.startsWith("+");
+  return hasPlusPrefix ? `+${digitsOnly}` : `+${digitsOnly}`;
+}
+
+function buildWhatsAppHref(baseUrl: string, message: string) {
+  const trimmedBaseUrl = (baseUrl || "").trim();
+  const fallbackPhone = "254700000000";
+  let phone = "";
+
+  if (trimmedBaseUrl) {
+    const phoneMatch = trimmedBaseUrl.match(/(?:^|[/?&])phone=(\+?\d+)/i);
+    const waMeMatch = trimmedBaseUrl.match(/wa\.me\/(\+?\d+)/i);
+    const apiMatch = trimmedBaseUrl.match(/api\.whatsapp\.com\/send\/(?:.*)?phone=(\+?\d+)/i);
+
+    if (phoneMatch?.[1]) {
+      phone = normalizeWhatsAppPhone(phoneMatch[1]);
+    } else if (waMeMatch?.[1]) {
+      phone = normalizeWhatsAppPhone(waMeMatch[1]);
+    } else if (apiMatch?.[1]) {
+      phone = normalizeWhatsAppPhone(apiMatch[1]);
+    } else {
+      phone = normalizeWhatsAppPhone(trimmedBaseUrl);
+    }
+  }
+
+  const normalizedPhone = phone || fallbackPhone;
+  const encodedMessage = encodeURIComponent(message);
+  return `https://wa.me/${normalizedPhone.replace(/^\+/, "")}?text=${encodedMessage}`;
 }
 
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
