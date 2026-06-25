@@ -1,6 +1,7 @@
 import { MongoClient } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
+const databaseName = process.env.MONGODB_DB_NAME;
 
 const options = {
   serverSelectionTimeoutMS: 8000,
@@ -49,7 +50,7 @@ function getClientPromise() {
 export async function getDb() {
   const clientPromise = getClientPromise();
   const connectedClient = await clientPromise;
-  return connectedClient.db();
+  return connectedClient.db(databaseName || undefined);
 }
 
 export function formatMongoError(error: unknown) {
