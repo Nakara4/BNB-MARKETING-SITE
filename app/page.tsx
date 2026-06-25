@@ -2,6 +2,8 @@ import { SearchBar } from "@/components/search-bar";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard } from "@/components/property-card";
 import { getProperties } from "@/lib/properties";
+import { formatMongoError } from "@/lib/mongodb";
+import type { Property } from "@/lib/types";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +15,14 @@ type HomeProps = {
 
 export default async function Home({ searchParams }: HomeProps) {
   const { location } = await searchParams;
-  const properties = await getProperties(location);
+  let properties: Property[] = [];
+  let databaseError = "";
+
+  try {
+    properties = await getProperties(location);
+  } catch (error) {
+    databaseError = formatMongoError(error);
+  }
 
   return (
     <main>
@@ -43,6 +52,12 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <section className="bg-mist py-14 sm:py-20" aria-labelledby="available-homes">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          {databaseError ? (
+            <div className="mb-8 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm font-semibold text-amber-900">
+              {databaseError}
+            </div>
+          ) : null}
+
           <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
             <div>
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-palm">Available homes</p>
@@ -58,6 +73,11 @@ export default async function Home({ searchParams }: HomeProps) {
               {properties.map((property) => (
                 <PropertyCard key={property.id} property={property} />
               ))}
+            </div>
+          ) : databaseError ? (
+            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">
+              <h2 className="text-2xl font-bold text-ink">Properties are temporarily unavailable</h2>
+              <p className="mt-3 text-slate-600">The site is running, but it cannot reach the development database.</p>
             </div>
           ) : (
             <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">

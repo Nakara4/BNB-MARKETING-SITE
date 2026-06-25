@@ -54,7 +54,13 @@ export async function getDb() {
 }
 
 export function formatMongoError(error: unknown) {
-  if (error instanceof Error && error.name === "MongoNetworkError") {
+  if (
+    error instanceof Error &&
+    (error.name === "MongoNetworkError" ||
+      error.name === "MongoServerSelectionError" ||
+      error.message.includes("ETIMEDOUT") ||
+      error.message.includes("ENETUNREACH"))
+  ) {
     return "Cannot connect to MongoDB Atlas. Check Atlas Network Access, your internet connection, and that your current IP address is allowed.";
   }
 
