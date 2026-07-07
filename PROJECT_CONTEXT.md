@@ -148,8 +148,7 @@ the flagship Diani listing and then falls back to a generic beach image.
 - Image deletion removes URLs from MongoDB but does not yet delete assets from
   Cloudinary.
 - Property fields are still minimal for high-converting stay pages.
-- No analytics, conversion tracking, sitemap, or robots configuration is in
-  place yet.
+- No analytics or conversion tracking is in place yet.
 
 ## Listing Accuracy Notes
 

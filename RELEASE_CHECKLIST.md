@@ -67,6 +67,7 @@ Run this checklist before merging to `main` or deploying production changes.
 - [ ] Open Graph image uses the first property image where available.
 - [ ] Google site verification metadata is still present if needed.
 - [ ] Sitemap exists and includes active properties.
+- [ ] Sitemap excludes `/admin` and API routes.
 - [ ] Robots rules are intentional for production.
 
 ## Security Checks

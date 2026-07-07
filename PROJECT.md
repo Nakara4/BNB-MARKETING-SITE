@@ -154,6 +154,8 @@ passwords.
 - Location-based property search
 - Dynamic property detail pages
 - Unique SEO metadata for each property
+- Dynamic sitemap at `/sitemap.xml`
+- Production robots rules at `/robots.txt`
 - WhatsApp and email booking links
 - Password-protected admin dashboard
 - Add, edit, and delete property workflows
@@ -209,7 +211,6 @@ CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 - Test add, edit, delete, and image upload workflows end to end.
 - Set the best Harlequin Diani building photo as the first image on a Diani listing.
 - Add property amenities, bedrooms, bathrooms, and guest capacity.
-- Add sitemap and robots metadata for launch SEO.
 - Add loading, success, and error notifications to admin actions.
 - Replace fallback property images with an intentional empty-image state.
 - Add automated tests for property APIs and authentication.

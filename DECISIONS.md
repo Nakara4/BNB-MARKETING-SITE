@@ -92,3 +92,11 @@ matches before newest-created ordering.
 Reason: The business will add Nairobi and other non-Harlequin listings later,
 but the first Harlequin Diani units should remain at the top of the homepage
 because they are the flagship product.
+
+## 2026-07-07: Generate Sitemap In Next.js
+
+Decision: Use `app/sitemap.ts` and `app/robots.ts` instead of committing a
+static downloaded sitemap file.
+
+Reason: The sitemap should update as public property pages change, and private
+routes such as `/admin` should not be submitted for indexing.
