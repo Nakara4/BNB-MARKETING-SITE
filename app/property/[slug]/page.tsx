@@ -55,6 +55,16 @@ function buildWhatsAppHref(baseUrl: string, message: string) {
   return `https://wa.me/${normalizedPhone.replace(/^\+/, "")}?text=${encodedMessage}`;
 }
 
+function buildEmailHref(value: string, subject: string) {
+  const fallbackEmail = "ngangapepe8@gmail.com";
+  const trimmedValue = (value || "").trim();
+  const emailTarget = trimmedValue || fallbackEmail;
+  const mailtoHref = emailTarget.startsWith("mailto:") ? emailTarget : `mailto:${emailTarget}`;
+  const separator = mailtoHref.includes("?") ? "&" : "?";
+
+  return `${mailtoHref}${separator}subject=${encodeURIComponent(subject)}`;
+}
+
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
   const { slug } = await params;
   const property = await getPropertyBySlug(slug);
@@ -85,7 +95,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     process.env.NEXT_PUBLIC_BOOKING_WHATSAPP || "https://wa.me/254700000000",
     bookingMessage
   );
-  const emailHref = process.env.NEXT_PUBLIC_BOOKING_EMAIL || "mailto:hello@example.com";
+  const emailHref = buildEmailHref(process.env.NEXT_PUBLIC_BOOKING_EMAIL || "", `Booking request: ${property.title}`);
 
   return (
     <main className="bg-white">
@@ -137,7 +147,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                 Book on WhatsApp
               </a>
               <a
-                href={`${emailHref}?subject=${encodeURIComponent(`Booking request: ${property.title}`)}`}
+                href={emailHref}
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 font-bold text-ink transition hover:border-palm hover:text-palm"
               >
                 <Mail className="h-5 w-5" aria-hidden="true" />

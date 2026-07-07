@@ -73,7 +73,7 @@ CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
 ADMIN_PASSWORD=replace-with-a-strong-password
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_BOOKING_WHATSAPP=https://wa.me/254700000000
-NEXT_PUBLIC_BOOKING_EMAIL=mailto:hello@example.com
+NEXT_PUBLIC_BOOKING_EMAIL=mailto:ngangapepe8@gmail.com
 NEXT_PUBLIC_HERO_IMAGE_URL=https://res.cloudinary.com/cloud-name/image/upload/example/harlequin-diani-hero.jpg
 FEATURED_PROPERTY_SLUGS=harlequin-diani-studio,harlequin-diani-one-bedroom,harlequin-diani-one-bedroom-2
 ```
