@@ -2,7 +2,19 @@ import type { Metadata } from "next";
 import type { Property } from "@/lib/types";
 
 export const siteName = "Harlequin Diani";
-export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const productionSiteUrl = "https://harlequindiani.com";
+
+function normalizeSiteUrl(value?: string) {
+  const configuredUrl = value?.trim().replace(/\/$/, "");
+
+  if (process.env.NODE_ENV === "production" && (!configuredUrl || configuredUrl.includes("localhost"))) {
+    return productionSiteUrl;
+  }
+
+  return configuredUrl || "http://localhost:3000";
+}
+
+export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 export function propertyMetadata(property: Property): Metadata {
   const title = `${property.title} in ${property.location} | ${siteName}`;

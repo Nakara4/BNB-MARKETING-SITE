@@ -127,6 +127,10 @@ Production Vercel should set:
 NEXT_PUBLIC_SITE_URL=https://harlequindiani.com
 ```
 
+The code falls back to `https://harlequindiani.com` in production if this value
+is missing or accidentally set to localhost, but Vercel should still be fixed so
+the environment is explicit.
+
 Production can also set `FEATURED_PROPERTY_SLUGS` as a comma-separated list of
 the property slugs that should always appear first. Use the real slugs from the
 admin dashboard.
