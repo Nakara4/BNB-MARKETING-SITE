@@ -74,6 +74,7 @@ ADMIN_PASSWORD=replace-with-a-strong-password
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_BOOKING_WHATSAPP=https://wa.me/254700000000
 NEXT_PUBLIC_BOOKING_EMAIL=mailto:hello@example.com
+NEXT_PUBLIC_HERO_IMAGE_URL=https://res.cloudinary.com/cloud-name/image/upload/example/harlequin-diani-hero.jpg
 FEATURED_PROPERTY_SLUGS=harlequin-diani-studio,harlequin-diani-one-bedroom,harlequin-diani-one-bedroom-2
 ```
 
@@ -97,6 +98,7 @@ Before merging to `main`, confirm Vercel production has:
 - `NEXT_PUBLIC_SITE_URL=https://harlequindiani.com`.
 - `NEXT_PUBLIC_BOOKING_WHATSAPP` set to the real booking WhatsApp number.
 - `NEXT_PUBLIC_BOOKING_EMAIL` set to the real booking email.
+- `NEXT_PUBLIC_HERO_IMAGE_URL` set to the desired landing-page photo URL.
 - `FEATURED_PROPERTY_SLUGS` set to the three Harlequin Diani property slugs in
   the order they should appear.
 
@@ -144,6 +146,8 @@ passwords.
 ## Completed Features
 
 - Responsive Harlequin Diani homepage
+- Harlequin Diani browser/bookmark icon
+- Configurable homepage hero image through `NEXT_PUBLIC_HERO_IMAGE_URL`
 - Flagship-property positioning with listed-properties growth path
 - Featured listing order for pinned Harlequin Diani properties
 - Location copy for Diani Beach, Umoja, Ukunda Airport, and route differences

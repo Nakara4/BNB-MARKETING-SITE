@@ -64,6 +64,10 @@ function getFlagshipProperty(properties: Property[]) {
   return properties.find((property) => `${property.title} ${property.location}`.toLowerCase().includes("diani")) ?? properties[0];
 }
 
+function getHeroImage(flagshipProperty?: Property) {
+  return process.env.NEXT_PUBLIC_HERO_IMAGE_URL || flagshipProperty?.images[0] || heroFallbackImage;
+}
+
 export default async function Home({ searchParams }: HomeProps) {
   const { location } = await searchParams;
   let properties: Property[] = [];
@@ -76,7 +80,7 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   const flagshipProperty = getFlagshipProperty(properties);
-  const heroImage = flagshipProperty?.images[0] || heroFallbackImage;
+  const heroImage = getHeroImage(flagshipProperty);
 
   return (
     <main>

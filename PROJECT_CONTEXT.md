@@ -108,6 +108,7 @@ ADMIN_PASSWORD=replace-with-a-strong-password
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 NEXT_PUBLIC_BOOKING_WHATSAPP=https://wa.me/254700000000
 NEXT_PUBLIC_BOOKING_EMAIL=mailto:hello@example.com
+NEXT_PUBLIC_HERO_IMAGE_URL=https://res.cloudinary.com/cloud-name/image/upload/example/harlequin-diani-hero.jpg
 FEATURED_PROPERTY_SLUGS=harlequin-diani-studio,harlequin-diani-one-bedroom,harlequin-diani-one-bedroom-2
 ```
 
@@ -129,6 +130,10 @@ NEXT_PUBLIC_SITE_URL=https://harlequindiani.com
 Production can also set `FEATURED_PROPERTY_SLUGS` as a comma-separated list of
 the property slugs that should always appear first. Use the real slugs from the
 admin dashboard.
+
+Production can set `NEXT_PUBLIC_HERO_IMAGE_URL` to force the homepage hero to a
+specific uploaded image. If it is empty, the homepage uses the first image on
+the flagship Diani listing and then falls back to a generic beach image.
 
 ## Current Risks
 

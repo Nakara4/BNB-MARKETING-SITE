@@ -22,6 +22,7 @@ Run this checklist before merging to `main` or deploying production changes.
 - [ ] Vercel production has `NEXT_PUBLIC_SITE_URL=https://harlequindiani.com`.
 - [ ] Vercel production has the real `NEXT_PUBLIC_BOOKING_WHATSAPP`.
 - [ ] Vercel production has the real `NEXT_PUBLIC_BOOKING_EMAIL`.
+- [ ] Vercel production has `NEXT_PUBLIC_HERO_IMAGE_URL` if the hero should use a specific photo.
 - [ ] Vercel production has `FEATURED_PROPERTY_SLUGS` with the three Harlequin Diani listing slugs.
 - [ ] Production does not set `MONGODB_DB_NAME=harlequin_diani_dev`.
 
@@ -41,6 +42,7 @@ Run this checklist before merging to `main` or deploying production changes.
 - [ ] Home page loads on desktop.
 - [ ] Home page loads on mobile.
 - [ ] Header brand says Harlequin Diani.
+- [ ] Browser tab/bookmark icon displays the Harlequin Diani mark.
 - [ ] Hero copy focuses on Harlequin Diani.
 - [ ] Hero image uses a real Harlequin Diani/property photo when database images are available.
 - [ ] Homepage mentions about 1.2 km to Diani Beach by footpath.

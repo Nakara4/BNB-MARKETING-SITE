@@ -10,6 +10,7 @@ made. Keep tasks small enough to finish in one sitting where possible.
 - [ ] Confirm Vercel production has `NEXT_PUBLIC_SITE_URL=https://harlequindiani.com`.
 - [ ] Confirm Vercel production has the real booking WhatsApp and email values.
 - [ ] Confirm Vercel production has working `MONGODB_URI`, `CLOUDINARY_URL`, and `ADMIN_PASSWORD`.
+- [ ] Confirm Vercel production has `NEXT_PUBLIC_HERO_IMAGE_URL` if a specific hero photo should be forced.
 - [ ] Confirm Vercel production has `FEATURED_PROPERTY_SLUGS` with the three Harlequin Diani listing slugs.
 - [ ] Review the homepage on desktop and mobile before merging to `main`.
 - [ ] Set the best Harlequin Diani building photo as the first image on the main Diani listing.
@@ -62,6 +63,8 @@ made. Keep tasks small enough to finish in one sitting where possible.
 - [x] Add clearer MongoDB connection warnings.
 - [x] Add Cloudinary upload validation and JSON error handling.
 - [x] Rebrand public site metadata from Staycation Homes to Harlequin Diani.
+- [x] Add Harlequin Diani browser/bookmark icon.
+- [x] Add configurable homepage hero image URL.
 - [x] Rework homepage around Harlequin Diani as the flagship property.
 - [x] Keep listed-properties section for Diani, Nairobi, and future curated stays.
 - [x] Add featured listing order so Harlequin Diani stays remain above newer non-Harlequin listings.
