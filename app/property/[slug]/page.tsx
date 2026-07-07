@@ -58,7 +58,8 @@ function buildWhatsAppHref(baseUrl: string, message: string) {
 function buildEmailHref(value: string, subject: string) {
   const fallbackEmail = "ngangapepe8@gmail.com";
   const trimmedValue = (value || "").trim();
-  const emailTarget = trimmedValue || fallbackEmail;
+  const isPlaceholderEmail = /(^mailto:)?(hello|your-email)@example\.com$/i.test(trimmedValue);
+  const emailTarget = trimmedValue && !isPlaceholderEmail ? trimmedValue : fallbackEmail;
   const mailtoHref = emailTarget.startsWith("mailto:") ? emailTarget : `mailto:${emailTarget}`;
   const separator = mailtoHref.includes("?") ? "&" : "?";
 
