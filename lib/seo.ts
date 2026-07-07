@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { Property } from "@/lib/types";
 
-export const siteName = "Staycation Homes";
+export const siteName = "Harlequin Diani";
 export const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export function propertyMetadata(property: Property): Metadata {

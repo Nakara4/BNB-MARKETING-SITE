@@ -4,6 +4,13 @@ import type { Property, PropertyDocument, PropertyInput } from "@/lib/types";
 
 const COLLECTION = "properties";
 
+function featuredSlugs() {
+  return (process.env.FEATURED_PROPERTY_SLUGS || process.env.NEXT_PUBLIC_FEATURED_PROPERTY_SLUGS || "")
+    .split(",")
+    .map((slug) => normalizeSlug(slug))
+    .filter(Boolean);
+}
+
 function slugify(value: string) {
   return value
     .toLowerCase()
@@ -38,6 +45,40 @@ function toProperty(document: PropertyDocument): Property {
   };
 }
 
+function getFeaturedRank(property: Property, pinnedSlugs: string[]) {
+  const pinnedIndex = pinnedSlugs.indexOf(normalizeSlug(property.slug));
+
+  if (pinnedIndex >= 0) {
+    return pinnedIndex;
+  }
+
+  const searchableText = `${property.title} ${property.location}`.toLowerCase();
+
+  if (searchableText.includes("harlequin")) {
+    return 100;
+  }
+
+  if (searchableText.includes("diani")) {
+    return 200;
+  }
+
+  return 1000;
+}
+
+function sortProperties(properties: Property[]) {
+  const pinnedSlugs = featuredSlugs();
+
+  return [...properties].sort((first, second) => {
+    const rankDifference = getFeaturedRank(first, pinnedSlugs) - getFeaturedRank(second, pinnedSlugs);
+
+    if (rankDifference !== 0) {
+      return rankDifference;
+    }
+
+    return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime();
+  });
+}
+
 async function collection() {
   const db = await getDb();
   const properties = db.collection<PropertyDocument>(COLLECTION);
@@ -62,7 +103,7 @@ export async function getProperties(location?: string) {
     : {};
 
   const documents = await properties.find(query).sort({ createdAt: -1 }).toArray();
-  return documents.map(toProperty);
+  return sortProperties(documents.map(toProperty));
 }
 
 export async function getPropertyBySlug(slug: string) {

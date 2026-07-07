@@ -8,13 +8,15 @@ export const metadata: Metadata = {
     "google-site-verification": "-Bekxg88Twwc3j0t1Og89nZ0NiiRKBRMfOByhubFNns"
   },
   title: {
-    default: `${siteName} | Curated Staycation Homes`,
+    default: `${siteName} | Diani Apartments and Curated Stays`,
     template: `%s | ${siteName}`
   },
-  description: "Browse beautiful staycation homes by location, compare prices, and book directly with the host.",
+  description:
+    "Book Harlequin Diani near Umoja, Diani Beach, and Ukunda Airport, plus curated short-stay apartments in Kenya.",
   openGraph: {
-    title: `${siteName} | Curated Staycation Homes`,
-    description: "Browse beautiful staycation homes by location, compare prices, and book directly with the host.",
+    title: `${siteName} | Diani Apartments and Curated Stays`,
+    description:
+      "Book Harlequin Diani near Umoja, Diani Beach, and Ukunda Airport, plus curated short-stay apartments in Kenya.",
     siteName,
     type: "website"
   }
