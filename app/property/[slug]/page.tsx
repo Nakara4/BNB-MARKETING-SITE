@@ -55,15 +55,25 @@ function buildWhatsAppHref(baseUrl: string, message: string) {
   return `https://wa.me/${normalizedPhone.replace(/^\+/, "")}?text=${encodedMessage}`;
 }
 
-function buildEmailHref(value: string, subject: string) {
+function getBookingEmail(value: string) {
   const fallbackEmail = "ngangapepe8@gmail.com";
   const trimmedValue = (value || "").trim();
-  const isPlaceholderEmail = /(^mailto:)?(hello|your-email)@example\.com$/i.test(trimmedValue);
-  const emailTarget = trimmedValue && !isPlaceholderEmail ? trimmedValue : fallbackEmail;
-  const mailtoHref = emailTarget.startsWith("mailto:") ? emailTarget : `mailto:${emailTarget}`;
-  const separator = mailtoHref.includes("?") ? "&" : "?";
+  const emailTarget = trimmedValue.replace(/^mailto:/i, "").split("?")[0];
+  const isPlaceholderEmail = /^(hello|your-email)@example\.com$/i.test(emailTarget);
 
-  return `${mailtoHref}${separator}subject=${encodeURIComponent(subject)}`;
+  return emailTarget && !isPlaceholderEmail ? emailTarget : fallbackEmail;
+}
+
+function buildEmailHref(email: string, subject: string, body: string) {
+  const params = new URLSearchParams({
+    view: "cm",
+    fs: "1",
+    to: email,
+    su: subject,
+    body
+  });
+
+  return `https://mail.google.com/mail/?${params.toString()}`;
 }
 
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
@@ -96,7 +106,9 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     process.env.NEXT_PUBLIC_BOOKING_WHATSAPP || "https://wa.me/254700000000",
     bookingMessage
   );
-  const emailHref = buildEmailHref(process.env.NEXT_PUBLIC_BOOKING_EMAIL || "", `Booking request: ${property.title}`);
+  const bookingEmail = getBookingEmail(process.env.NEXT_PUBLIC_BOOKING_EMAIL || "");
+  const emailSubject = `Booking request: ${property.title}`;
+  const emailHref = buildEmailHref(bookingEmail, emailSubject, bookingMessage);
 
   return (
     <main className="bg-white">
@@ -149,11 +161,19 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
               </a>
               <a
                 href={emailHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 font-bold text-ink transition hover:border-palm hover:text-palm"
               >
                 <Mail className="h-5 w-5" aria-hidden="true" />
                 Email to Book
               </a>
+              <p className="text-center text-xs font-semibold text-slate-500">
+                Email:{" "}
+                <a href={`mailto:${bookingEmail}`} className="text-palm transition hover:text-coral">
+                  {bookingEmail}
+                </a>
+              </p>
             </div>
           </aside>
         </section>
