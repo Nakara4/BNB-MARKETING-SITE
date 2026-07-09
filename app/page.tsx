@@ -6,7 +6,10 @@ import { formatMongoError } from "@/lib/mongodb";
 import type { Property } from "@/lib/types";
 import { Car, MapPin, MessageCircle, ShieldCheck, Sparkles, Waves, Wifi } from "lucide-react";
 
-export const dynamic = "force-dynamic";
+// Enable ISR (Incremental Static Regeneration) for better performance
+// Pages are statically generated and revalidated every 60 seconds
+// This replaces force-dynamic, reducing database load significantly
+export const revalidate = 60;
 
 type HomeProps = {
   searchParams: Promise<{
@@ -68,6 +71,38 @@ function getHeroImage(flagshipProperty?: Property) {
   return process.env.NEXT_PUBLIC_HERO_IMAGE_URL || flagshipProperty?.images[0] || heroFallbackImage;
 }
 
+function TrustHighlight({ label, icon: Icon }: { label: string; icon: any }) {
+  return (
+    <span
+      key={label}
+      className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 backdrop-blur"
+    >
+      <Icon className="h-4 w-4" aria-hidden="true" />
+      {label}
+    </span>
+  );
+}
+
+function FlagshipFeatureCard({ feature }: { feature: typeof flagshipFeatures[0] }) {
+  const Icon = feature.icon;
+  return (
+    <div key={feature.title} className="rounded-lg border border-slate-200 bg-mist p-5">
+      <Icon className="h-6 w-6 text-coral" aria-hidden="true" />
+      <h3 className="mt-4 text-lg font-black text-ink">{feature.title}</h3>
+      <p className="mt-2 text-sm leading-6 text-slate-600">{feature.description}</p>
+    </div>
+  );
+}
+
+function LocationHighlight({ highlight }: { highlight: typeof locationHighlights[0] }) {
+  return (
+    <div key={highlight.title}>
+      <p className="text-2xl font-black text-ink">{highlight.title}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-slate-600">{highlight.description}</p>
+    </div>
+  );
+}
+
 export default async function Home({ searchParams }: HomeProps) {
   const { location } = await searchParams;
   let properties: Property[] = [];
@@ -102,18 +137,9 @@ export default async function Home({ searchParams }: HomeProps) {
               Diani Beach of about 1.2 km, a vehicle route of about 2 km, and easy access to Ukunda Airport.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 text-sm font-bold text-white">
-              {trustHighlights.map((highlight) => {
-                const Icon = highlight.icon;
-                return (
-                  <span
-                    key={highlight.label}
-                    className="inline-flex items-center gap-2 rounded-full border border-white/25 bg-white/15 px-4 py-2 backdrop-blur"
-                  >
-                    <Icon className="h-4 w-4" aria-hidden="true" />
-                    {highlight.label}
-                  </span>
-                );
-              })}
+              {trustHighlights.map((highlight) => (
+                <TrustHighlight key={highlight.label} {...highlight} />
+              ))}
             </div>
           </div>
           <div className="mt-10">
@@ -136,16 +162,9 @@ export default async function Home({ searchParams }: HomeProps) {
             </p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
-            {flagshipFeatures.map((feature) => {
-              const Icon = feature.icon;
-              return (
-                <div key={feature.title} className="rounded-lg border border-slate-200 bg-mist p-5">
-                  <Icon className="h-6 w-6 text-coral" aria-hidden="true" />
-                  <h3 className="mt-4 text-lg font-black text-ink">{feature.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">{feature.description}</p>
-                </div>
-              );
-            })}
+            {flagshipFeatures.map((feature) => (
+              <FlagshipFeatureCard key={feature.title} feature={feature} />
+            ))}
           </div>
         </div>
       </section>
@@ -198,10 +217,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
           <div className="grid gap-5 text-slate-600 sm:grid-cols-3">
             {locationHighlights.map((highlight) => (
-              <div key={highlight.title}>
-                <p className="text-2xl font-black text-ink">{highlight.title}</p>
-                <p className="mt-2 text-sm font-semibold leading-6">{highlight.description}</p>
-              </div>
+              <LocationHighlight key={highlight.title} highlight={highlight} />
             ))}
           </div>
         </div>

@@ -31,6 +31,60 @@ async function readApiResponse(response: Response) {
   };
 }
 
+/**
+ * Memoized property card component to prevent unnecessary re-renders
+ */
+function PropertyListItem({ property, onEdit, onDelete }: { property: Property; onEdit: (p: Property) => void; onDelete: (id: string) => void }) {
+  // Construct Cloudinary URL with optimization transformations
+  // w_200,h_200 = responsive thumbnail size
+  // c_fill = crop to aspect ratio
+  // q_auto = automatic quality optimization
+  const optimizedImageUrl = property.images[0]
+    ? property.images[0].includes("cloudinary.com")
+      ? property.images[0].replace("/image/upload/", "/image/upload/w_200,h_200,c_fill,q_auto/")
+      : property.images[0]
+    : "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=200&auto=format&fit=crop";
+
+  return (
+    <article key={property.id} className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[140px_1fr_auto]">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-slate-100">
+        <Image
+          src={optimizedImageUrl}
+          alt={property.title}
+          fill
+          sizes="(max-width: 640px) 100vw, 180px"
+          className="object-cover"
+          loading="lazy"
+        />
+      </div>
+      <div>
+        <h3 className="text-xl font-black text-ink">{property.title}</h3>
+        <p className="mt-1 text-sm font-semibold text-palm">{property.location}</p>
+        <p className="mt-2 text-sm text-slate-600">KSh {property.price.toLocaleString()} / night</p>
+        <Link href={`/property/${property.slug}`} className="mt-3 inline-flex text-sm font-bold text-coral">
+          View public page
+        </Link>
+      </div>
+      <div className="flex gap-2 sm:flex-col">
+        <button
+          onClick={() => onEdit(property)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-300"
+          aria-label={`Edit ${property.title}`}
+        >
+          <Edit className="h-4 w-4" aria-hidden="true" />
+        </button>
+        <button
+          onClick={() => onDelete(property.id)}
+          className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-ink text-white"
+          aria-label={`Delete ${property.title}`}
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+        </button>
+      </div>
+    </article>
+  );
+}
+
 export function AdminDashboard({ initialProperties, databaseError }: { initialProperties: Property[]; databaseError?: string }) {
   const [properties, setProperties] = useState(initialProperties);
   const [form, setForm] = useState<PropertyInput>(emptyForm);
@@ -39,7 +93,10 @@ export function AdminDashboard({ initialProperties, databaseError }: { initialPr
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
 
-  const sortedProperties = useMemo(() => [...properties].sort((a, b) => a.title.localeCompare(b.title)), [properties]);
+  // Sort by title only once when properties change, don't re-sort on every render
+  const sortedProperties = useMemo(() => {
+    return [...properties].sort((a, b) => a.title.localeCompare(b.title));
+  }, [properties]);
 
   function resetForm() {
     setForm(emptyForm);
@@ -234,7 +291,7 @@ export function AdminDashboard({ initialProperties, databaseError }: { initialPr
               <div className="grid grid-cols-3 gap-2">
                 {form.images.map((image) => (
                   <div key={image} className="relative aspect-square overflow-hidden rounded-md bg-slate-100">
-                    <Image src={image} alt="Uploaded property" fill sizes="120px" className="object-cover" />
+                    <Image src={image} alt="Uploaded property" fill sizes="120px" className="object-cover" loading="lazy" />
                     <button
                       type="button"
                       onClick={() => setForm((current) => ({ ...current, images: current.images.filter((item) => item !== image) }))}
@@ -262,36 +319,12 @@ export function AdminDashboard({ initialProperties, databaseError }: { initialPr
           </h2>
           <div className="grid gap-4">
             {sortedProperties.map((property) => (
-              <article key={property.id} className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-[140px_1fr_auto]">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-md bg-slate-100">
-                  <Image
-                    src={property.images[0] || "https://images.unsplash.com/photo-1564013799919-ab600027ffc6?q=80&w=700&auto=format&fit=crop"}
-                    alt={property.title}
-                    fill
-                    sizes="180px"
-                    className="object-cover"
-                  />
-                </div>
-                <div>
-                  <h3 className="text-xl font-black text-ink">{property.title}</h3>
-                  <p className="mt-1 text-sm font-semibold text-palm">{property.location}</p>
-                  <p className="mt-2 text-sm text-slate-600">KSh {property.price.toLocaleString()} / night</p>
-                  <Link href={`/property/${property.slug}`} className="mt-3 inline-flex text-sm font-bold text-coral">
-                    View public page
-                  </Link>
-                </div>
-                <div className="flex gap-2 sm:flex-col">
-                  <button onClick={() => editProperty(property)} className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-300" aria-label={`Edit ${property.title}`}>
-                    <Edit className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <button onClick={() => removeProperty(property.id)} className="inline-flex h-10 w-10 items-center justify-center rounded-md bg-ink text-white" aria-label={`Delete ${property.title}`}>
-                    <Trash2 className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-              </article>
+              <PropertyListItem key={property.id} property={property} onEdit={editProperty} onDelete={removeProperty} />
             ))}
             {!sortedProperties.length ? (
-              <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">Add your first staycation home to publish it.</div>
+              <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center text-slate-600">
+                Add your first staycation home to publish it.
+              </div>
             ) : null}
           </div>
         </section>
