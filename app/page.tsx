@@ -48,7 +48,7 @@ const flagshipFeatures = [
 const locationHighlights = [
   {
     title: "1.2 km",
-    description: "Approximate footpath distance to Diani Beach. The vehicle route is about 4 km."
+    description: "Approximate footpath distance to Diani Beach. The vehicle route is about 2 km."
   },
   {
     title: "Umoja",
@@ -99,7 +99,7 @@ export default async function Home({ searchParams }: HomeProps) {
             <h1 className="text-4xl font-black leading-tight sm:text-6xl">Quiet serviced apartments near Diani Beach.</h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-white/85">
               Stay at Harlequin Diani, a growing collection of furnished apartments near Umoja, with a footpath to
-              Diani Beach of about 1.2 km, a vehicle route of about 4 km, and easy access to Ukunda Airport.
+              Diani Beach of about 1.2 km, a vehicle route of about 2 km, and easy access to Ukunda Airport.
             </p>
             <div className="mt-7 flex flex-wrap gap-3 text-sm font-bold text-white">
               {trustHighlights.map((highlight) => {
