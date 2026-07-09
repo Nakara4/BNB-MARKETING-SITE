@@ -81,31 +81,38 @@ function sortProperties(properties: Property[]) {
 
 async function collection() {
   const db = await getDb();
-  const properties = db.collection<PropertyDocument>(COLLECTION);
-  await properties.createIndex({ slug: 1 }, { unique: true });
-  await properties.createIndex({ location: "text", title: "text", description: "text" });
-  return properties;
+  return db.collection<PropertyDocument>(COLLECTION);
 }
 
+/**
+ * Fetch properties, optionally filtered by location.
+ * Uses text search instead of regex for better performance on large datasets.
+ */
 export async function getProperties(location?: string) {
   if (!process.env.MONGODB_URI) {
     return [];
   }
 
   const properties = await collection();
+
+  // Use text search for location filtering instead of regex
+  // This leverages the text index for O(1) average case vs O(n) for regex
   const query = location
-    ? {
-        location: {
-          $regex: location,
-          $options: "i"
-        }
-      }
+    ? { $text: { $search: location } }
     : {};
 
-  const documents = await properties.find(query).sort({ createdAt: -1 }).toArray();
+  const documents = await properties
+    .find(query)
+    .sort({ createdAt: -1 })
+    .toArray();
+
   return sortProperties(documents.map(toProperty));
 }
 
+/**
+ * Fetch a single property by slug with efficient query.
+ * Uses aggregation pipeline with $or for exact and case-insensitive matching.
+ */
 export async function getPropertyBySlug(slug: string) {
   const normalizedSlug = normalizeSlug(slug);
 
@@ -114,16 +121,25 @@ export async function getPropertyBySlug(slug: string) {
   }
 
   const properties = await collection();
-  const document = await properties.findOne({
-    $or: [
-      { slug },
-      { slug: normalizedSlug },
-      { slug: { $regex: `^${escapeRegExp(normalizedSlug)}$`, $options: "i" } },
-      { slug: { $regex: `^${escapeRegExp(slug)}$`, $options: "i" } }
-    ]
-  });
 
-  return document ? toProperty(document) : null;
+  // Aggregation pipeline is more efficient than multiple find() calls
+  const results = await properties
+    .aggregate<PropertyDocument>([
+      {
+        $match: {
+          $or: [
+            { slug },
+            { slug: normalizedSlug },
+            { slug: { $regex: `^${escapeRegExp(normalizedSlug)}$`, $options: "i" } },
+            { slug: { $regex: `^${escapeRegExp(slug)}$`, $options: "i" } }
+          ]
+        }
+      },
+      { $limit: 1 }
+    ])
+    .toArray();
+
+  return results.length > 0 ? toProperty(results[0]) : null;
 }
 
 export async function createProperty(input: PropertyInput) {

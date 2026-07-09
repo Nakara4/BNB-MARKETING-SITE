@@ -1,35 +1,38 @@
 import type { Metadata } from "next";
-import "./globals.css";
-import { siteName, siteUrl } from "@/lib/seo";
+import { Geist, Geist_Mono } from "next/font/google";
+import { initializeIndexes } from "@/lib/db";
+import "@/app/globals.css";
+
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"]
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"]
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  other: {
-    "google-site-verification": "-Bekxg88Twwc3j0t1Og89nZ0NiiRKBRMfOByhubFNns"
-  },
-  title: {
-    default: `${siteName} | Diani Apartments and Curated Stays`,
-    template: `%s | ${siteName}`
-  },
-  description:
-    "Book Harlequin Diani near Umoja, Diani Beach, and Ukunda Airport, plus curated short-stay apartments in Kenya.",
-  openGraph: {
-    title: `${siteName} | Diani Apartments and Curated Stays`,
-    description:
-      "Book Harlequin Diani near Umoja, Diani Beach, and Ukunda Airport, plus curated short-stay apartments in Kenya.",
-    siteName,
-    type: "website"
-  }
+  title: "Harlequin Diani | Serviced Apartments in Ukunda",
+  description: "Book quiet furnished apartments near Diani Beach, Umoja, Ukunda. Direct WhatsApp booking."
 };
+
+// Initialize database indexes once on server startup
+if (process.env.NODE_ENV !== "test") {
+  initializeIndexes().catch((error) => {
+    console.error("Database initialization error:", error);
+  });
+}
 
 export default function RootLayout({
   children
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
     </html>
   );
 }
