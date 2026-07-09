@@ -3,10 +3,37 @@ import { MongoClient } from "mongodb";
 const uri = process.env.MONGODB_URI;
 const databaseName = process.env.MONGODB_DB_NAME;
 
+// Optimized MongoDB connection options for better performance and stability
 const options = {
-  serverSelectionTimeoutMS: 8000,
-  connectTimeoutMS: 8000,
-  socketTimeoutMS: 20000
+  // Timeout for server selection (finding a healthy server to connect to)
+  // Reduced from 8s to 5s to fail fast if database is unreachable
+  serverSelectionTimeoutMS: 5000,
+
+  // Timeout for establishing initial connection
+  // Reduced from 8s to 5s for quicker failure detection
+  connectTimeoutMS: 5000,
+
+  // Timeout for socket operations (read/write)
+  // Slightly reduced from 20s to 15s to prevent hanging requests
+  socketTimeoutMS: 15000,
+
+  // Connection pool settings for better concurrency
+  // Minimum pool size (connections always open)
+  minPoolSize: 2,
+
+  // Maximum pool size (max concurrent connections)
+  // Adjusted for typical Vercel serverless scale
+  maxPoolSize: 10,
+
+  // Wait queue timeout - how long to wait for an available connection
+  waitQueueTimeoutMS: 10000,
+
+  // Retry logic for transient connection failures
+  retryWrites: true,
+  retryReads: true,
+
+  // Connection monitoring
+  monitorCommands: process.env.NODE_ENV === "development"
 };
 
 let client: MongoClient | undefined;
