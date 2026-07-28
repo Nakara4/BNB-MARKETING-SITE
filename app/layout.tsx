@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { BusinessStructuredData } from "@/components/business-structured-data";
+import { SiteFooter } from "@/components/site-footer";
 import { siteName, siteUrl } from "@/lib/seo";
 
 export const metadata: Metadata = {
@@ -29,7 +31,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <BusinessStructuredData />
+        {children}
+        <SiteFooter />
+      </body>
     </html>
   );
 }
