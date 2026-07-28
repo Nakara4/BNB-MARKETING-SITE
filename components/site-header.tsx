@@ -14,12 +14,6 @@ export function SiteHeader() {
           <a href="#location" className="hidden text-sm font-bold text-white/85 transition hover:text-white sm:inline">
             Location
           </a>
-          <Link
-            href="/admin"
-            className="rounded-full border border-white/35 bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/25"
-          >
-            Admin
-          </Link>
         </div>
       </nav>
     </header>

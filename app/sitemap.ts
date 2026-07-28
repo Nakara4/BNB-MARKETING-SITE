@@ -10,6 +10,11 @@ const fallbackPropertySlugs = [
   "1-bdrm-airbnb-in-ukunda-diani"
 ];
 
+type SitemapProperty = {
+  slug: string;
+  lastModified?: Date;
+};
+
 function absoluteUrl(path = "") {
   const baseUrl = siteUrl.replace(/\/$/, "");
   return `${baseUrl}${path}`;
@@ -33,27 +38,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     properties = [];
   }
 
-  const now = new Date();
-  const propertyRoutes = properties.length
+  const propertyRoutes: SitemapProperty[] = properties.length
     ? properties.map((property) => ({
         slug: property.slug,
         lastModified: new Date(property.updatedAt)
       }))
     : fallbackPropertySlugs.map((slug) => ({
-        slug,
-        lastModified: now
+        slug
       }));
 
   return [
     {
       url: absoluteUrl("/"),
-      lastModified: now,
       changeFrequency: "weekly",
       priority: 1
     },
     ...propertyRoutes.map((property) => ({
       url: absoluteUrl(`/property/${property.slug}`),
-      lastModified: property.lastModified,
+      ...(property.lastModified ? { lastModified: property.lastModified } : {}),
       changeFrequency: "weekly" as const,
       priority: 0.8
     }))

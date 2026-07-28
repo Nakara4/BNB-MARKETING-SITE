@@ -7,7 +7,7 @@ const productionSiteUrl = "https://harlequindiani.com";
 function normalizeSiteUrl(value?: string) {
   const configuredUrl = value?.trim().replace(/\/$/, "");
 
-  if (process.env.NODE_ENV === "production" && (!configuredUrl || configuredUrl.includes("localhost"))) {
+  if (process.env.NODE_ENV === "production" && configuredUrl !== productionSiteUrl) {
     return productionSiteUrl;
   }
 
@@ -17,7 +17,7 @@ function normalizeSiteUrl(value?: string) {
 export const siteUrl = normalizeSiteUrl(process.env.NEXT_PUBLIC_SITE_URL);
 
 export function propertyMetadata(property: Property): Metadata {
-  const title = `${property.title} in ${property.location} | ${siteName}`;
+  const title = `${property.title} in ${property.location}`;
   const description = `${property.description.slice(0, 145)}${property.description.length > 145 ? "..." : ""}`;
 
   return {
@@ -27,7 +27,7 @@ export function propertyMetadata(property: Property): Metadata {
       canonical: `${siteUrl}/property/${property.slug}`
     },
     openGraph: {
-      title,
+      title: `${title} | ${siteName}`,
       description,
       url: `${siteUrl}/property/${property.slug}`,
       siteName,

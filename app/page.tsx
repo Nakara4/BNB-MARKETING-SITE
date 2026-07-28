@@ -1,17 +1,17 @@
+import type { Metadata } from "next";
 import { SearchBar } from "@/components/search-bar";
 import { SiteHeader } from "@/components/site-header";
 import { PropertyCard } from "@/components/property-card";
 import { getProperties } from "@/lib/properties";
 import { formatMongoError } from "@/lib/mongodb";
+import { siteUrl } from "@/lib/seo";
 import type { Property } from "@/lib/types";
 import { Car, MapPin, MessageCircle, ShieldCheck, Sparkles, Waves, Wifi } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
 type HomeProps = {
-  searchParams: Promise<{
-    location?: string;
-  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 const heroFallbackImage = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1800&auto=format&fit=crop";
@@ -68,8 +68,33 @@ function getHeroImage(flagshipProperty?: Property) {
   return process.env.NEXT_PUBLIC_HERO_IMAGE_URL || flagshipProperty?.images[0] || heroFallbackImage;
 }
 
+function getSearchParam(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export async function generateMetadata({ searchParams }: HomeProps): Promise<Metadata> {
+  const parameters = await searchParams;
+  const hasParameters = Object.keys(parameters).length > 0;
+
+  return {
+    alternates: {
+      canonical: `${siteUrl}/`
+    },
+    robots: hasParameters
+      ? {
+          index: false,
+          follow: true
+        }
+      : undefined,
+    openGraph: {
+      url: `${siteUrl}/`
+    }
+  };
+}
+
 export default async function Home({ searchParams }: HomeProps) {
-  const { location } = await searchParams;
+  const parameters = await searchParams;
+  const location = getSearchParam(parameters.location);
   let properties: Property[] = [];
   let databaseError = "";
 

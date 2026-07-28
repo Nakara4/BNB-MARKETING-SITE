@@ -1,9 +1,18 @@
+import type { Metadata } from "next";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { getProperties } from "@/lib/properties";
 import { AdminDashboard } from "@/components/admin-dashboard";
 import { formatMongoError } from "@/lib/mongodb";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Admin",
+  robots: {
+    index: false,
+    follow: false
+  }
+};
 
 export default async function AdminPage() {
   const authenticated = await isAdminAuthenticated();
