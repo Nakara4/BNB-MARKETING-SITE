@@ -10,6 +10,8 @@ const fallbackPropertySlugs = [
   "1-bdrm-airbnb-in-ukunda-diani"
 ];
 
+const contentRoutes = ["/contact", "/about", "/diani-beach-guide", "/policies"];
+
 type SitemapProperty = {
   slug: string;
   lastModified?: Date;
@@ -53,6 +55,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 1
     },
+    ...contentRoutes.map((path) => ({
+      url: absoluteUrl(path),
+      changeFrequency: "monthly" as const,
+      priority: 0.7
+    })),
     ...propertyRoutes.map((property) => ({
       url: absoluteUrl(`/property/${property.slug}`),
       ...(property.lastModified ? { lastModified: property.lastModified } : {}),

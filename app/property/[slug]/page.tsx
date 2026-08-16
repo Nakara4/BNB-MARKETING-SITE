@@ -3,8 +3,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mail, MapPin, MessageCircle } from "lucide-react";
 import { notFound } from "next/navigation";
+import { SiteHeader } from "@/components/site-header";
+import { StructuredData } from "@/components/structured-data";
 import { getPropertyBySlug } from "@/lib/properties";
-import { propertyMetadata } from "@/lib/seo";
+import { propertyMetadata, propertyStructuredData } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
@@ -111,73 +113,77 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
   const emailHref = buildEmailHref(bookingEmail, emailSubject, bookingMessage);
 
   return (
-    <main className="bg-white">
-      <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-5 py-5 sm:px-8">
-        <Link href="/" className="text-sm font-bold text-palm hover:text-coral">
-          Back to all homes
-        </Link>
-      </nav>
+    <>
+      <StructuredData data={propertyStructuredData(property)} />
+      <SiteHeader variant="solid" />
+      <main className="bg-white">
+        <nav aria-label="Breadcrumb" className="mx-auto max-w-7xl px-5 py-5 sm:px-8">
+          <Link href="/" className="text-sm font-bold text-palm hover:text-coral">
+            Back to all homes
+          </Link>
+        </nav>
 
-      <article>
-        <header className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
-          <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-palm">
-            <MapPin className="h-4 w-4" aria-hidden="true" />
-            {property.location}
-          </p>
-          <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-ink sm:text-6xl">{property.title}</h1>
-        </header>
-
-        <section aria-label={`${property.title} photo gallery`} className="mx-auto grid max-w-7xl gap-3 px-5 sm:grid-cols-4 sm:px-8">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-slate-100 sm:col-span-2 sm:row-span-2">
-            <Image src={images[0]} alt={`${property.title} main view`} fill priority sizes="(min-width: 640px) 50vw, 100vw" className="object-cover" />
-          </div>
-          {images.slice(1, 5).map((image, index) => (
-            <div key={image} className="relative aspect-[4/3] overflow-hidden rounded-lg bg-slate-100">
-              <Image src={image} alt={`${property.title} view ${index + 2}`} fill sizes="(min-width: 640px) 25vw, 100vw" className="object-cover" />
-            </div>
-          ))}
-        </section>
-
-        <section className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_380px]">
-          <div>
-            <h2 className="text-2xl font-black text-ink">About this stay</h2>
-            <p className="mt-4 whitespace-pre-line text-lg leading-8 text-slate-600">{property.description}</p>
-          </div>
-
-          <aside className="h-fit rounded-lg border border-slate-200 bg-mist p-6 shadow-sm">
-            <p className="text-3xl font-black text-ink">
-              KSh {property.price.toLocaleString()}
-              <span className="text-base font-bold text-slate-600"> / night</span>
+        <article>
+          <header className="mx-auto max-w-7xl px-5 pb-8 sm:px-8">
+            <p className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.16em] text-palm">
+              <MapPin className="h-4 w-4" aria-hidden="true" />
+              {property.location}
             </p>
-            <div className="mt-6 grid gap-3">
-              <a
-                href={whatsappHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-coral px-5 font-bold text-white transition hover:bg-[#cf4e43]"
-              >
-                <MessageCircle className="h-5 w-5" aria-hidden="true" />
-                Book on WhatsApp
-              </a>
-              <a
-                href={emailHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 font-bold text-ink transition hover:border-palm hover:text-palm"
-              >
-                <Mail className="h-5 w-5" aria-hidden="true" />
-                Email to Book
-              </a>
-              <p className="text-center text-xs font-semibold text-slate-500">
-                Email:{" "}
-                <a href={`mailto:${bookingEmail}`} className="text-palm transition hover:text-coral">
-                  {bookingEmail}
-                </a>
-              </p>
+            <h1 className="mt-3 max-w-4xl text-4xl font-black leading-tight text-ink sm:text-6xl">{property.title}</h1>
+          </header>
+
+          <section aria-label={`${property.title} photo gallery`} className="mx-auto grid max-w-7xl gap-3 px-5 sm:grid-cols-4 sm:px-8">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-lg bg-slate-100 sm:col-span-2 sm:row-span-2">
+              <Image src={images[0]} alt={`${property.title} main view`} fill priority sizes="(min-width: 640px) 50vw, 100vw" className="object-cover" />
             </div>
-          </aside>
-        </section>
-      </article>
-    </main>
+            {images.slice(1, 5).map((image, index) => (
+              <div key={image} className="relative aspect-[4/3] overflow-hidden rounded-lg bg-slate-100">
+                <Image src={image} alt={`${property.title} view ${index + 2}`} fill sizes="(min-width: 640px) 25vw, 100vw" className="object-cover" />
+              </div>
+            ))}
+          </section>
+
+          <section className="mx-auto grid max-w-7xl gap-8 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_380px]">
+            <div>
+              <h2 className="text-2xl font-black text-ink">About this stay</h2>
+              <p className="mt-4 whitespace-pre-line text-lg leading-8 text-slate-600">{property.description}</p>
+            </div>
+
+            <aside className="h-fit rounded-lg border border-slate-200 bg-mist p-6 shadow-sm">
+              <p className="text-3xl font-black text-ink">
+                KSh {property.price.toLocaleString()}
+                <span className="text-base font-bold text-slate-600"> / night</span>
+              </p>
+              <div className="mt-6 grid gap-3">
+                <a
+                  href={whatsappHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md bg-coral px-5 font-bold text-white transition hover:bg-[#cf4e43]"
+                >
+                  <MessageCircle className="h-5 w-5" aria-hidden="true" />
+                  Book on WhatsApp
+                </a>
+                <a
+                  href={emailHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-md border border-slate-300 bg-white px-5 font-bold text-ink transition hover:border-palm hover:text-palm"
+                >
+                  <Mail className="h-5 w-5" aria-hidden="true" />
+                  Email to Book
+                </a>
+                <p className="text-center text-xs font-semibold text-slate-500">
+                  Email:{" "}
+                  <a href={`mailto:${bookingEmail}`} className="text-palm transition hover:text-coral">
+                    {bookingEmail}
+                  </a>
+                </p>
+              </div>
+            </aside>
+          </section>
+        </article>
+      </main>
+    </>
   );
 }

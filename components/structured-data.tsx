@@ -1,0 +1,9 @@
+type StructuredDataProps = {
+  data: Record<string, unknown>;
+};
+
+export function StructuredData({ data }: StructuredDataProps) {
+  const structuredData = JSON.stringify(data).replace(/</g, "\\u003c");
+
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: structuredData }} />;
+}
