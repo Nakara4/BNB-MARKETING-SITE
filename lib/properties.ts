@@ -93,10 +93,11 @@ export async function getProperties(location?: string) {
   }
 
   const properties = await collection();
-  const query = location
+  const normalizedLocation = location?.trim().slice(0, 100);
+  const query = normalizedLocation
     ? {
         location: {
-          $regex: location,
+          $regex: escapeRegExp(normalizedLocation),
           $options: "i"
         }
       }

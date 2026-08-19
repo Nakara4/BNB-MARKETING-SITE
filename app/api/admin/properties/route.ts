@@ -1,12 +1,9 @@
 import { NextResponse } from "next/server";
+import { serverErrorResponse } from "@/lib/api-errors";
 import { isAdminAuthenticated } from "@/lib/auth";
 import { createProperty, getProperties } from "@/lib/properties";
-import type { PropertyInput } from "@/lib/types";
-import { formatMongoError } from "@/lib/mongodb";
-
-function isValidInput(input: Partial<PropertyInput>) {
-  return Boolean(input.title && input.location && input.description && Number(input.price) > 0);
-}
+import { validatePropertyInput } from "@/lib/property-validation";
+import { isTrustedMutationRequest } from "@/lib/request-security";
 
 export async function GET() {
   try {
@@ -17,24 +14,28 @@ export async function GET() {
     const properties = await getProperties();
     return NextResponse.json({ properties });
   } catch (error) {
-    return NextResponse.json({ error: formatMongoError(error) }, { status: 503 });
+    return serverErrorResponse("Could not list admin properties", error, 503);
   }
 }
 
 export async function POST(request: Request) {
   try {
+    if (!isTrustedMutationRequest(request)) {
+      return NextResponse.json({ error: "Forbidden." }, { status: 403 });
+    }
+
     if (!(await isAdminAuthenticated())) {
       return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
     }
 
-    const input = (await request.json()) as PropertyInput;
-    if (!isValidInput(input)) {
-      return NextResponse.json({ error: "Title, price, location, and description are required." }, { status: 400 });
+    const validation = validatePropertyInput(await request.json().catch(() => null));
+    if ("error" in validation) {
+      return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const property = await createProperty(input);
+    const property = await createProperty(validation.data);
     return NextResponse.json({ property }, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: formatMongoError(error) }, { status: 503 });
+    return serverErrorResponse("Could not create property", error, 503);
   }
 }

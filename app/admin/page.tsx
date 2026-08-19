@@ -14,6 +14,14 @@ export const metadata: Metadata = {
   }
 };
 
+async function loadAdminProperties() {
+  try {
+    return { properties: await getProperties(), databaseError: undefined };
+  } catch (error) {
+    return { properties: [], databaseError: formatMongoError(error) };
+  }
+}
+
 export default async function AdminPage() {
   const authenticated = await isAdminAuthenticated();
 
@@ -31,6 +39,7 @@ export default async function AdminPage() {
               <input
                 type="password"
                 name="password"
+                autoComplete="current-password"
                 required
                 className="min-h-12 rounded-md border border-slate-300 px-4 font-normal outline-none focus:border-palm"
               />
@@ -42,10 +51,7 @@ export default async function AdminPage() {
     );
   }
 
-  try {
-    const properties = await getProperties();
-    return <AdminDashboard initialProperties={properties} />;
-  } catch (error) {
-    return <AdminDashboard initialProperties={[]} databaseError={formatMongoError(error)} />;
-  }
+  const { properties, databaseError } = await loadAdminProperties();
+
+  return <AdminDashboard initialProperties={properties} databaseError={databaseError} />;
 }
