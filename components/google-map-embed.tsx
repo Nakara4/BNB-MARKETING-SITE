@@ -28,6 +28,7 @@ export function GoogleMapEmbed({ embedUrl }: GoogleMapEmbedProps) {
         src={normalizedEmbedUrl}
         title={`Map showing ${siteName} in Diani Beach`}
         loading="lazy"
+        allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"
         className="h-full w-full border-0"
       />

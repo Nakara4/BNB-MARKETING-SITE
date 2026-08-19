@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Building2, ExternalLink, Mail, MapPin, Phone } from "lucide-react";
-import { GoogleMapEmbed } from "@/components/google-map-embed";
 import { contactDetails, siteName, socialProfiles } from "@/lib/seo";
 
 const footerNavigation = [
@@ -15,7 +14,7 @@ const footerNavigation = [
 export function SiteFooter() {
   return (
     <footer className="bg-ink text-white" aria-labelledby="contact-heading">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[0.8fr_0.55fr_1fr] lg:items-start">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-12 sm:px-8 lg:grid-cols-[1fr_0.55fr] lg:items-start">
         <section>
           <p className="text-sm font-bold uppercase tracking-[0.18em] text-coral">Contact</p>
           <h2 id="contact-heading" className="mt-2 text-3xl font-black">
@@ -79,10 +78,6 @@ export function SiteFooter() {
             ))}
           </div>
         </nav>
-
-        <section aria-label={`${siteName} map`}>
-          <GoogleMapEmbed embedUrl={process.env.NEXT_PUBLIC_GOOGLE_MAP_EMBED_URL} />
-        </section>
       </div>
     </footer>
   );
