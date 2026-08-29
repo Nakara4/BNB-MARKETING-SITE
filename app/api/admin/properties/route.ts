@@ -4,6 +4,7 @@ import { isAdminAuthenticated } from "@/lib/auth";
 import { createProperty, getProperties } from "@/lib/properties";
 import { validatePropertyInput } from "@/lib/property-validation";
 import { isTrustedMutationRequest } from "@/lib/request-security";
+import { revalidatePublicProperties } from "@/lib/propertyRevalidation";
 
 export async function GET() {
   try {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     }
 
     const property = await createProperty(validation.data);
+    revalidatePublicProperties([property.slug]);
     return NextResponse.json({ property }, { status: 201 });
   } catch (error) {
     return serverErrorResponse("Could not create property", error, 503);

@@ -6,7 +6,9 @@ const MAX_DESCRIPTION_LENGTH = 6000;
 const MAX_SLUG_LENGTH = 160;
 const MAX_IMAGES = 12;
 const MAX_PRICE = 1_000_000;
-const ALLOWED_IMAGE_HOSTS = new Set(["res.cloudinary.com", "images.unsplash.com"]);
+const CLOUDINARY_HOST = "res.cloudinary.com";
+const CLOUDINARY_UPLOAD_PATH = "/dcaamvlzr/image/upload/";
+const UNSPLASH_HOST = "images.unsplash.com";
 
 type ValidationResult =
   | { data: PropertyInput; error?: never }
@@ -28,7 +30,9 @@ function validImageUrl(value: unknown) {
 
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && ALLOWED_IMAGE_HOSTS.has(url.hostname);
+    if (url.protocol !== "https:") return false;
+    if (url.hostname === UNSPLASH_HOST) return true;
+    return url.hostname === CLOUDINARY_HOST && url.pathname.startsWith(CLOUDINARY_UPLOAD_PATH);
   } catch {
     return false;
   }

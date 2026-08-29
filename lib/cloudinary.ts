@@ -40,7 +40,15 @@ export async function uploadImage(file: File) {
       {
         folder: "staycation-homes",
         resource_type: "image",
-        transformation: [{ quality: "auto", fetch_format: "auto" }]
+        transformation: [
+          {
+            width: 1600,
+            height: 1600,
+            crop: "limit",
+            quality: "auto",
+            fetch_format: "auto"
+          }
+        ]
       },
       (error, result) => {
         if (error || !result) {

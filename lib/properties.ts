@@ -191,10 +191,16 @@ export async function updateProperty(id: string, input: PropertyInput) {
   );
 
   const updated = await properties.findOne({ _id: existing._id });
-  return updated ? toProperty(updated) : null;
+  return updated
+    ? {
+        property: toProperty(updated),
+        previousSlug: existing.slug
+      }
+    : null;
 }
 
 export async function deleteProperty(id: string) {
   const properties = await collection();
-  await properties.deleteOne({ _id: new ObjectId(id) });
+  const deleted = await properties.findOneAndDelete({ _id: new ObjectId(id) });
+  return deleted ? toProperty(deleted) : null;
 }

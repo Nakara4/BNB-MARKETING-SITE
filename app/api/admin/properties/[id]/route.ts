@@ -5,6 +5,7 @@ import { isAdminAuthenticated } from "@/lib/auth";
 import { deleteProperty, updateProperty } from "@/lib/properties";
 import { validatePropertyInput } from "@/lib/property-validation";
 import { isTrustedMutationRequest } from "@/lib/request-security";
+import { revalidatePublicProperties } from "@/lib/propertyRevalidation";
 
 type Params = {
   params: Promise<{
@@ -32,13 +33,14 @@ export async function PUT(request: Request, { params }: Params) {
       return NextResponse.json({ error: validation.error }, { status: 400 });
     }
 
-    const property = await updateProperty(id, validation.data);
+    const result = await updateProperty(id, validation.data);
 
-    if (!property) {
+    if (!result) {
       return NextResponse.json({ error: "Property not found." }, { status: 404 });
     }
 
-    return NextResponse.json({ property });
+    revalidatePublicProperties([result.previousSlug, result.property.slug]);
+    return NextResponse.json({ property: result.property });
   } catch (error) {
     return serverErrorResponse("Could not update property", error, 503);
   }
@@ -59,7 +61,12 @@ export async function DELETE(request: Request, { params }: Params) {
       return NextResponse.json({ error: "Invalid property identifier." }, { status: 400 });
     }
 
-    await deleteProperty(id);
+    const property = await deleteProperty(id);
+    if (!property) {
+      return NextResponse.json({ error: "Property not found." }, { status: 404 });
+    }
+
+    revalidatePublicProperties([property.slug]);
     return NextResponse.json({ ok: true });
   } catch (error) {
     return serverErrorResponse("Could not delete property", error, 503);

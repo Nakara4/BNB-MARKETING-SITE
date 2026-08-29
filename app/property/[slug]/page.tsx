@@ -1,14 +1,28 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { cache } from "react";
 import { Mail, MapPin, MessageCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { StructuredData } from "@/components/structured-data";
-import { getPropertyBySlug } from "@/lib/properties";
+import { getProperties, getPropertyBySlug } from "@/lib/properties";
 import { propertyMetadata, propertyStructuredData } from "@/lib/seo";
 
-export const dynamic = "force-dynamic";
+// Admin mutations invalidate changed properties immediately; this is only a safety net.
+export const revalidate = 86400;
+
+const getProperty = cache(getPropertyBySlug);
+
+export async function generateStaticParams() {
+  try {
+    const properties = await getProperties();
+    return properties.map((property) => ({ slug: property.slug }));
+  } catch (error) {
+    console.error("Could not pre-render property routes:", error);
+    return [];
+  }
+}
 
 type PropertyPageProps = {
   params: Promise<{
@@ -80,7 +94,7 @@ function buildEmailHref(email: string, subject: string, body: string) {
 
 export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const property = await getPropertyBySlug(slug);
+  const property = await getProperty(slug);
 
   if (!property) {
     return {
@@ -94,7 +108,7 @@ export async function generateMetadata({ params }: PropertyPageProps): Promise<M
 
 export default async function PropertyPage({ params }: PropertyPageProps) {
   const { slug } = await params;
-  const property = await getPropertyBySlug(slug);
+  const property = await getProperty(slug);
 
   if (!property) {
     notFound();

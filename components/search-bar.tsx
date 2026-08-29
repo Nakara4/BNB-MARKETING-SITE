@@ -1,6 +1,12 @@
-import { MapPin, Search } from "lucide-react";
+"use client";
 
-export function SearchBar({ location }: { location?: string }) {
+import { MapPin, Search } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+
+export function SearchBar() {
+  const searchParams = useSearchParams();
+  const location = searchParams.get("location")?.trim() || "";
+
   return (
     <form action="/" className="mx-auto flex w-full max-w-3xl flex-col gap-3 rounded-lg bg-white p-3 shadow-soft sm:flex-row">
       <label className="flex min-h-14 flex-1 items-center gap-3 rounded-md border border-slate-200 px-4">
@@ -8,6 +14,7 @@ export function SearchBar({ location }: { location?: string }) {
         <span className="sr-only">Search by location</span>
         <input
           name="location"
+          key={location}
           defaultValue={location}
           placeholder="Search by location"
           className="w-full border-0 bg-transparent text-base text-ink outline-none placeholder:text-slate-400"

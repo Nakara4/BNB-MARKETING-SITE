@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import { Suspense } from "react";
 import { SearchBar } from "@/components/search-bar";
 import { SiteHeader } from "@/components/site-header";
-import { PropertyCard } from "@/components/property-card";
+import { PropertyGrid } from "@/components/property-grid";
+import { PropertyResults } from "@/components/property-results";
 import { getProperties } from "@/lib/properties";
 import { formatMongoError } from "@/lib/mongodb";
 import { siteUrl } from "@/lib/seo";
 import type { Property } from "@/lib/types";
 import { Car, MapPin, MessageCircle, ShieldCheck, Sparkles, Waves, Wifi } from "lucide-react";
 
-export const dynamic = "force-dynamic";
-
-type HomeProps = {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-};
+// Property mutations invalidate this page immediately; this is only a safety net.
+export const revalidate = 86400;
 
 const heroFallbackImage = "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1800&auto=format&fit=crop";
 
@@ -68,38 +68,17 @@ function getHeroImage(flagshipProperty?: Property) {
   return process.env.NEXT_PUBLIC_HERO_IMAGE_URL || flagshipProperty?.images[0] || heroFallbackImage;
 }
 
-function getSearchParam(value: string | string[] | undefined) {
-  return Array.isArray(value) ? value[0] : value;
-}
+export const metadata: Metadata = {
+  alternates: { canonical: `${siteUrl}/` },
+  openGraph: { url: `${siteUrl}/` }
+};
 
-export async function generateMetadata({ searchParams }: HomeProps): Promise<Metadata> {
-  const parameters = await searchParams;
-  const hasParameters = Object.keys(parameters).length > 0;
-
-  return {
-    alternates: {
-      canonical: `${siteUrl}/`
-    },
-    robots: hasParameters
-      ? {
-          index: false,
-          follow: true
-        }
-      : undefined,
-    openGraph: {
-      url: `${siteUrl}/`
-    }
-  };
-}
-
-export default async function Home({ searchParams }: HomeProps) {
-  const parameters = await searchParams;
-  const location = getSearchParam(parameters.location);
+export default async function Home() {
   let properties: Property[] = [];
   let databaseError = "";
 
   try {
-    properties = await getProperties(location);
+    properties = await getProperties();
   } catch (error) {
     databaseError = formatMongoError(error);
   }
@@ -111,13 +90,10 @@ export default async function Home({ searchParams }: HomeProps) {
     <main>
       <SiteHeader />
       <section className="relative min-h-[88vh] overflow-hidden bg-ink">
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `linear-gradient(90deg, rgba(17, 24, 39, 0.82), rgba(17, 24, 39, 0.42)), url('${heroImage}')`
-          }}
-          aria-hidden="true"
-        />
+        <div className="absolute inset-0" aria-hidden="true">
+          <Image src={heroImage} alt="" fill priority sizes="100vw" className="object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-ink/85 to-ink/40" />
+        </div>
         <div className="relative z-10 mx-auto flex min-h-[88vh] max-w-7xl flex-col justify-center px-5 pb-20 pt-28 sm:px-8">
           <div className="max-w-4xl text-white">
             <p className="mb-4 text-sm font-bold uppercase tracking-[0.18em] text-white/75">Harlequin Diani, Ukunda</p>
@@ -142,7 +118,9 @@ export default async function Home({ searchParams }: HomeProps) {
             </div>
           </div>
           <div className="mt-10">
-            <SearchBar location={location} />
+            <Suspense fallback={<div className="h-20 w-full max-w-3xl rounded-lg bg-white/90" />}>
+              <SearchBar />
+            </Suspense>
           </div>
         </div>
       </section>
@@ -183,33 +161,9 @@ export default async function Home({ searchParams }: HomeProps) {
             </div>
           ) : null}
 
-          <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-            <div>
-              <p className="text-sm font-bold uppercase tracking-[0.18em] text-palm">Available stays</p>
-              <h2 id="available-homes" className="mt-2 text-3xl font-black text-ink sm:text-4xl">
-                {location ? `Stays in ${location}` : "Book Harlequin Diani and selected stays"}
-              </h2>
-            </div>
-            <p className="text-sm font-semibold text-slate-600">{properties.length} stay{properties.length === 1 ? "" : "s"} listed</p>
-          </div>
-
-          {properties.length ? (
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {properties.map((property) => (
-                <PropertyCard key={property.id} property={property} />
-              ))}
-            </div>
-          ) : databaseError ? (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">
-              <h2 className="text-2xl font-bold text-ink">Properties are temporarily unavailable</h2>
-              <p className="mt-3 text-slate-600">The site is running, but it cannot reach the development database.</p>
-            </div>
-          ) : (
-            <div className="rounded-lg border border-dashed border-slate-300 bg-white p-10 text-center">
-              <h2 className="text-2xl font-bold text-ink">No stays found</h2>
-              <p className="mt-3 text-slate-600">Try another location or add your first property from the admin dashboard.</p>
-            </div>
-          )}
+          <Suspense fallback={<PropertyGrid properties={properties} databaseError={databaseError} />}>
+            <PropertyResults properties={properties} databaseError={databaseError} />
+          </Suspense>
         </div>
       </section>
 

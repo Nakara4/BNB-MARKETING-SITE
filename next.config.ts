@@ -76,14 +76,23 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    // Cloudinary and Unsplash already provide responsive image delivery. Use a
+    // small, predictable srcset rather than sending those files through a
+    // second Vercel transformation pipeline.
+    loaderFile: "./lib/imageLoader.ts",
+    deviceSizes: [640, 828, 1200, 1920],
+    imageSizes: [64, 96, 128, 256, 384],
+    qualities: [75],
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "res.cloudinary.com"
+        hostname: "res.cloudinary.com",
+        pathname: "/dcaamvlzr/image/upload/**"
       },
       {
         protocol: "https",
-        hostname: "images.unsplash.com"
+        hostname: "images.unsplash.com",
+        pathname: "/**"
       }
     ]
   }

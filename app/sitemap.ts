@@ -3,7 +3,8 @@ import { getProperties } from "@/lib/properties";
 import { siteUrl } from "@/lib/seo";
 import type { Property } from "@/lib/types";
 
-export const dynamic = "force-dynamic";
+// Admin mutations invalidate this route immediately; this is only a safety net.
+export const revalidate = 86400;
 
 const fallbackPropertySlugs = [
   "studio-airbnb-in-diani-beach-harlequin-apartments-ukunda",
